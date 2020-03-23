@@ -1,0 +1,46 @@
+#! /bin/bash
+getdiskspace(){
+
+	diskspacevarfedex=`df -h | grep '/var/fedex' | awk '{print $4}'| cut -d'%' -f1`
+
+}
+
+loglocation="/var/fedex"
+alert=60
+
+archivefile(){
+	cd $loglocation
+	find * -mtime +60 -print -exec gzip {} \;
+}
+
+
+sendemail(){
+
+	echo "sending mail"
+	mail -s ' out of diskspace' 5176144@fedex.com << EOF
+	EOF
+
+}
+
+getdiskspace
+
+checktoarchive(){
+	if [[ "$diskspacevarfedex" -ge "$alert" ]]; then
+	sendemail
+	return 0
+	fi
+	return 1
+}
+
+checktoarchive
+
+	if [ $? = 0 ]
+	then
+	echo " to be compressed "
+	archivefile
+		if [ $? -eq 0 ]
+		then
+		echo "  archived files"
+		fi
+	fi
+exit 0;
